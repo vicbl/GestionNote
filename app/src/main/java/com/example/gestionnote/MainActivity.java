@@ -37,10 +37,11 @@ public class MainActivity extends Activity {
 	ExpandableListAdapter listAdapter;
 	ExpandableListView expListView;
 	List<String> listDataHeader;
-	HashMap<String, List<String>> listDataChild;
+	HashMap<String, String> listDataChild;
+
+	JSONArray filetmp=new JSONArray();
 
 	final Context context = this;
-
 
 
 	@Override
@@ -53,9 +54,8 @@ public class MainActivity extends Activity {
 		expListView = (ExpandableListView) findViewById(R.id.lvExp);
 
 		// preparing list data
-
-
 		prepareListData();
+
 		listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
 
 		// setting list adapter
@@ -109,8 +109,7 @@ public class MainActivity extends Activity {
 						listDataHeader.get(groupPosition)
 								+ " : "
 								+ listDataChild.get(
-										listDataHeader.get(groupPosition)).get(
-										childPosition), Toast.LENGTH_SHORT)
+										listDataHeader.get(groupPosition)), Toast.LENGTH_SHORT)
 						.show();
 				return false;
 			}
@@ -122,11 +121,6 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View view) {
 					// Click action
-				/*	Toast.makeText(getApplicationContext(),
-							"click",
-						Toast.LENGTH_SHORT).show();*/
-
-
 
 				// custom dialog
 				final Dialog dialog = new Dialog(context);
@@ -137,8 +131,6 @@ public class MainActivity extends Activity {
 				final EditText textNote = (EditText) dialog.findViewById(R.id.note);
 				final EditText textTitre = (EditText) dialog.findViewById(R.id.titre);
 
-//				ImageView image = (ImageView) dialog.findViewById(R.id.image);
-//				image.setImageResource(R.drawable.ic_launcher);*/
 
 				Button dialogButtonOK = (Button) dialog.findViewById(R.id.dialogButtonOK);
 				Button dialogButtonCancel = (Button) dialog.findViewById(R.id.dialogButtonCancel);
@@ -150,11 +142,12 @@ public class MainActivity extends Activity {
 					}
 				});
 
+
 				dialogButtonOK.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						String titre = textTitre.getText().toString();
-						listDataHeader.add(titre);
+
 
 						Toast.makeText(getApplicationContext(),
 								context.getFilesDir().toString(),
@@ -163,35 +156,29 @@ public class MainActivity extends Activity {
 						String note = textNote.getText().toString();
 
 
-						List<String> tmp = new ArrayList<String>();
-						tmp.add(note);
 
-						listDataChild.put(listDataHeader.get(listDataHeader.size()-1),tmp);
-
-						String fileContent = readFromFile();
-
-
+						listDataHeader.add(titre);
+						listDataChild.put(listDataHeader.get(listDataHeader.size()-1),note);
 
 
 						JSONObject obj = new JSONObject();
 						try {
 							obj.put("titre",titre );
 							obj.put("note",note );
-							JSONObject filetmp = new JSONObject(fileContent.toString());
-							Log.e("get number",""+filetmp.length());
-							Log.e("get titre",""+filetmp.getJSONObject(titre));
+
+
+							filetmp.put(obj);
+
+
+							writeToFile(filetmp.toString());
 						} catch (JSONException e) {
 							e.printStackTrace();
 						}
 
+
+
 						Log.e("JSON content",obj.toString());
-						Log.e("file content",fileContent);
-
-
-					if (!fileContent.isEmpty()){
-						fileContent=fileContent+",";
-					}
-						writeToFile(fileContent+obj.toString());
+						Log.e("file array",filetmp.toString());
 
 						dialog.dismiss();
 					}
@@ -259,20 +246,20 @@ public class MainActivity extends Activity {
 
 	private void prepareListData() {
 		listDataHeader = new ArrayList<String>();
-		listDataChild = new HashMap<String, List<String>>();
-		try {
-			JSONObject obj = new JSONObject(readFromFile().toString());
-			String titre = obj.get("titre").toString();
-			String note = obj.get("note").toString();
-
-				listDataHeader.add(titre);
-Log.e("errorkjdfgdkfjg",titre);
-			Log.e("errorkjdfgdkfjg",note);
+		listDataChild = new HashMap<String, String>();
 
 
-
-
-		} catch (JSONException e) {
+			try {
+				filetmp=new JSONArray(readFromFile());
+				JSONObject obj = new JSONObject();
+				for(int i=0;i<filetmp.length();i++){
+					obj=filetmp.getJSONObject(i);
+					String titre = obj.get("titre").toString();
+					String note = obj.get("note").toString();
+					listDataHeader.add(titre);
+					listDataChild.put(listDataHeader.get(i),note );
+				}
+} catch (JSONException e) {
 			e.printStackTrace();
 		}
 	}
