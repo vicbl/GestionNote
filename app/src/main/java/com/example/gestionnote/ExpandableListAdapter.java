@@ -69,7 +69,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public int getChildrenCount(int i) {
-		return 0;
+		return 1;
 	}
 
 	@Override
