@@ -155,30 +155,36 @@ public class MainActivity extends Activity {
 
 						String note = textNote.getText().toString();
 
+                        Log.e("Titre : ", titre);
+                        Log.e("DataHeader : ", listDataHeader.toString());
+						if (!listDataHeader.contains(titre)) {
+							listDataHeader.add(titre);
+							listDataChild.put(listDataHeader.get(listDataHeader.size() - 1), note);
 
 
-						listDataHeader.add(titre);
-						listDataChild.put(listDataHeader.get(listDataHeader.size()-1),note);
+							JSONObject obj = new JSONObject();
+							try {
+								obj.put("titre", titre);
+								obj.put("note", note);
 
 
-						JSONObject obj = new JSONObject();
-						try {
-							obj.put("titre",titre );
-							obj.put("note",note );
+								filetmp.put(obj);
 
 
-							filetmp.put(obj);
+								writeToFile(filetmp.toString());
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
 
+                            Log.e("JSON content",obj.toString());
+                            Log.e("file array",filetmp.toString());
 
-							writeToFile(filetmp.toString());
-						} catch (JSONException e) {
-							e.printStackTrace();
 						}
+						else {
+						    Log.e("Titre deja cree", titre);
+                        }
 
 
-
-						Log.e("JSON content",obj.toString());
-						Log.e("file array",filetmp.toString());
 
 						dialog.dismiss();
 					}
