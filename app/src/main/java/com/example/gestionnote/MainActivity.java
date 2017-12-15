@@ -11,11 +11,13 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -32,241 +34,251 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
-	ExpandableListAdapter listAdapter;
-	ExpandableListView expListView;
-	List<String> listDataHeader;
-	HashMap<String, String> listDataChild;
+    ExpandableListAdapter listAdapter;
+    ExpandableListView expListView;
+    List<String> listDataHeader;
+    HashMap<String, String> listDataChild;
 
-	JSONArray filetmp=new JSONArray();
+    JSONArray filetmp = new JSONArray();
 
-	final Context context = this;
-
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+    final Context context = this;
 
 
-		// get the listview
-		expListView = (ExpandableListView) findViewById(R.id.lvExp);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        this.setTitle("Gestion de Notes");
 
-		// preparing list data
-		prepareListData();
+        // get the listview
+        expListView = (ExpandableListView) findViewById(R.id.lvExp);
 
-		listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
+        // preparing list data
+        prepareListData();
 
-		// setting list adapter
-		expListView.setAdapter(listAdapter);
+        listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
 
-		// Listview Group click listener
-		expListView.setOnGroupClickListener(new OnGroupClickListener() {
+        // setting list adapter
+        expListView.setAdapter(listAdapter);
 
-			@Override
-			public boolean onGroupClick(ExpandableListView parent, View v,
-					int groupPosition, long id) {
-				// Toast.makeText(getApplicationContext(),
-				// "Group Clicked " + listDataHeader.get(groupPosition),
-				// Toast.LENGTH_SHORT).show();
-				return false;
-			}
-		});
+        // Listview Group click listener
+        expListView.setOnGroupClickListener(new OnGroupClickListener() {
 
-		// Listview Group expanded listener
-		expListView.setOnGroupExpandListener(new OnGroupExpandListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView parent, View v,
+                                        int groupPosition, long id) {
+                // Toast.makeText(getApplicationContext(),
+                // "Group Clicked " + listDataHeader.get(groupPosition),
+                // Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
 
-			@Override
-			public void onGroupExpand(int groupPosition) {
-				Toast.makeText(getApplicationContext(),
-						listDataHeader.get(groupPosition) + " Expanded",
-						Toast.LENGTH_SHORT).show();
-			}
-		});
+        // Listview Group expanded listener
+        expListView.setOnGroupExpandListener(new OnGroupExpandListener() {
 
-		// Listview Group collasped listener
-		expListView.setOnGroupCollapseListener(new OnGroupCollapseListener() {
+            @Override
+            public void onGroupExpand(int groupPosition) {
+                Toast.makeText(getApplicationContext(),
+                        listDataHeader.get(groupPosition) + " Expanded",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
 
-			@Override
-			public void onGroupCollapse(int groupPosition) {
-				Toast.makeText(getApplicationContext(),
-						listDataHeader.get(groupPosition) + " Collapsed",
-						Toast.LENGTH_SHORT).show();
+        // Listview Group collasped listener
+        expListView.setOnGroupCollapseListener(new OnGroupCollapseListener() {
 
-			}
-		});
+            @Override
+            public void onGroupCollapse(int groupPosition) {
+                Toast.makeText(getApplicationContext(),
+                        listDataHeader.get(groupPosition) + " Collapsed",
+                        Toast.LENGTH_SHORT).show();
 
-		// Listview on child click listener
-		expListView.setOnChildClickListener(new OnChildClickListener() {
+            }
+        });
 
-			@Override
-			public boolean onChildClick(ExpandableListView parent, View v,
-					int groupPosition, int childPosition, long id) {
-				// TODO Auto-generated method stub
-				Toast.makeText(
-						getApplicationContext(),
-						listDataHeader.get(groupPosition)
-								+ " : "
-								+ listDataChild.get(
-										listDataHeader.get(groupPosition)), Toast.LENGTH_SHORT)
-						.show();
-				return false;
-			}
-		});
+        // Listview on child click listener
+        expListView.setOnChildClickListener(new OnChildClickListener() {
 
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v,
+                                        int groupPosition, int childPosition, long id) {
+                // TODO Auto-generated method stub
+                Toast.makeText(
+                        getApplicationContext(),
+                        listDataHeader.get(groupPosition)
+                                + " : "
+                                + listDataChild.get(
+                                listDataHeader.get(groupPosition)), Toast.LENGTH_SHORT)
+                        .show();
+                return false;
+            }
+        });
 
-		FloatingActionButton create = (FloatingActionButton) findViewById(R.id.fab);
-		create.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-					// Click action
+        FloatingActionButton createDelete = (FloatingActionButton) findViewById(R.id.deleteNote);
+        createDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                writeToFile("");
+                listDataChild.clear();
+                listDataHeader.clear();
 
-				// custom dialog
-				final Dialog dialog = new Dialog(context);
-				dialog.setContentView(R.layout.create_note_dial);
-				dialog.setTitle("Title...");
-
-				// set the custom dialog components - text, image and button
-				final EditText textNote = (EditText) dialog.findViewById(R.id.note);
-				final EditText textTitre = (EditText) dialog.findViewById(R.id.titre);
-
-
-				Button dialogButtonOK = (Button) dialog.findViewById(R.id.dialogButtonOK);
-				Button dialogButtonCancel = (Button) dialog.findViewById(R.id.dialogButtonCancel);
-				// if button is clicked, close the custom dialog
-				dialogButtonCancel.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						dialog.dismiss();
-					}
-				});
+                expListView.setVisibility(View.GONE);
+                expListView.setVisibility(View.VISIBLE);
 
 
-				dialogButtonOK.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						String titre = textTitre.getText().toString();
+                Toast.makeText(getApplicationContext(),
+                        "Supprimer",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        FloatingActionButton createAdd = (FloatingActionButton) findViewById(R.id.addNote);
+        createAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Click action
+
+                // custom dialog
+                final Dialog dialog = new Dialog(context);
+                dialog.setContentView(R.layout.create_note_dial);
+                dialog.setTitle("Title...");
+
+                // set the custom dialog components - text, image and button
+                final EditText textNote = (EditText) dialog.findViewById(R.id.note);
+                final EditText textTitre = (EditText) dialog.findViewById(R.id.titre);
 
 
-						Toast.makeText(getApplicationContext(),
-								context.getFilesDir().toString(),
-								Toast.LENGTH_SHORT).show();
+                Button dialogButtonOK = (Button) dialog.findViewById(R.id.dialogButtonOK);
+                Button dialogButtonCancel = (Button) dialog.findViewById(R.id.dialogButtonCancel);
+                // if button is clicked, close the custom dialog
+                dialogButtonCancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                });
 
-						String note = textNote.getText().toString();
+
+                dialogButtonOK.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String titre = textTitre.getText().toString();
+
+
+					/*	Toast.makeText(getApplicationContext(),
+                                context.getFilesDir().toString(),
+								Toast.LENGTH_SHORT).show();*/
+
+                        String note = textNote.getText().toString();
 
                         Log.e("Titre : ", titre);
                         Log.e("DataHeader : ", listDataHeader.toString());
-						if (!listDataHeader.contains(titre)) {
-							listDataHeader.add(titre);
-							listDataChild.put(listDataHeader.get(listDataHeader.size() - 1), note);
+                        if (!listDataHeader.contains(titre)) {
+                            listDataHeader.add(titre);
+                            listDataChild.put(listDataHeader.get(listDataHeader.size() - 1), note);
 
 
-							JSONObject obj = new JSONObject();
-							try {
-								obj.put("titre", titre);
-								obj.put("note", note);
+                            JSONObject obj = new JSONObject();
+                            try {
+                                obj.put("titre", titre);
+                                obj.put("note", note);
 
 
-								filetmp.put(obj);
+                                filetmp.put(obj);
 
 
-								writeToFile(filetmp.toString());
-							} catch (JSONException e) {
-								e.printStackTrace();
-							}
+                                writeToFile(filetmp.toString());
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
 
-                            Log.e("JSON content",obj.toString());
-                            Log.e("file array",filetmp.toString());
-
-						}
-						else {
-						    Log.e("Titre deja cree", titre);
+                            Log.e("JSON content", obj.toString());
+                            Log.e("file array", filetmp.toString());
+                            dialog.dismiss();
+                        } else {
+                            Toast.makeText(getApplicationContext(),
+                                    "Titre deja cree",
+                                    Toast.LENGTH_SHORT).show();
+                            //  Log.e("Titre deja cree", titre);
                         }
 
 
-
-						dialog.dismiss();
-					}
-				});
-				dialog.show();
-			}
+                    }
+                });
+                dialog.show();
+            }
 
 
-		});
+        });
 
 
-	}
+    }
 
 
-	private void writeToFile(String data) {
+    private void writeToFile(String data) {
 
-		try {
-			FileOutputStream fos = openFileOutput("test.txt", Context.MODE_PRIVATE);
-			OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fos);
-			outputStreamWriter.write(data);
-			Toast.makeText(getApplicationContext(),
-					"Sauvegarder",
-					Toast.LENGTH_SHORT).show();
-			outputStreamWriter.close();
-			Toast.makeText(getApplicationContext(),
-					"Sauvegarder",
-					Toast.LENGTH_SHORT).show();
-
-		}
-		catch (IOException e) {
-			Log.e("Exception", "File write failed: " + e.toString());
-		}
-	}
+        try {
+            FileOutputStream fos = openFileOutput("test.txt", Context.MODE_PRIVATE);
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fos);
+            outputStreamWriter.write(data);
+            outputStreamWriter.close();
 
 
-	private String readFromFile() {
-
-		String ret = "";
-
-		try {
-			InputStream inputStream = context.openFileInput("test.txt");
-
-			if ( inputStream != null ) {
-				InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-				BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-				String receiveString = "";
-				StringBuilder stringBuilder = new StringBuilder();
-
-				while ( (receiveString = bufferedReader.readLine()) != null ) {
-					stringBuilder.append(receiveString);
-				}
-
-				inputStream.close();
-				ret = stringBuilder.toString();
-			}
-		}
-		catch (FileNotFoundException e) {
-			Log.e("login activity", "File not found: " + e.toString());
-		} catch (IOException e) {
-			Log.e("login activity", "Can not read file: " + e.toString());
-		}
-
-		return ret;
-	}
-
-	private void prepareListData() {
-		listDataHeader = new ArrayList<String>();
-		listDataChild = new HashMap<String, String>();
+        } catch (IOException e) {
+            Log.e("Exception", "File write failed: " + e.toString());
+        }
+    }
 
 
-			try {
-				filetmp=new JSONArray(readFromFile());
-				JSONObject obj = new JSONObject();
-				for(int i=0;i<filetmp.length();i++){
-					obj=filetmp.getJSONObject(i);
-					String titre = obj.get("titre").toString();
-					String note = obj.get("note").toString();
-					listDataHeader.add(titre);
-					listDataChild.put(listDataHeader.get(i),note );
-				}
-} catch (JSONException e) {
-			e.printStackTrace();
-		}
-	}
+    private String readFromFile() {
+
+        String ret = "";
+
+        try {
+            InputStream inputStream = context.openFileInput("test.txt");
+
+            if (inputStream != null) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String receiveString = "";
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ((receiveString = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(receiveString);
+                }
+
+                inputStream.close();
+                ret = stringBuilder.toString();
+            }
+        } catch (FileNotFoundException e) {
+            Log.e("login activity", "File not found: " + e.toString());
+        } catch (IOException e) {
+            Log.e("login activity", "Can not read file: " + e.toString());
+        }
+
+        return ret;
+    }
+
+    private void prepareListData() {
+        listDataHeader = new ArrayList<String>();
+        listDataChild = new HashMap<String, String>();
+
+
+        try {
+            filetmp = new JSONArray(readFromFile());
+            JSONObject obj = new JSONObject();
+            for (int i = 0; i < filetmp.length(); i++) {
+                obj = filetmp.getJSONObject(i);
+                String titre = obj.get("titre").toString();
+                String note = obj.get("note").toString();
+                listDataHeader.add(titre);
+                listDataChild.put(listDataHeader.get(i), note);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 }
