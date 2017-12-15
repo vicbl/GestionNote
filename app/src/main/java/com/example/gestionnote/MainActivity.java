@@ -37,7 +37,7 @@ public class MainActivity extends Activity {
 	ExpandableListAdapter listAdapter;
 	ExpandableListView expListView;
 	List<String> listDataHeader;
-	HashMap<String, String> listDataChild;
+	HashMap<String, List<String>> listDataChild;
 
 	JSONArray filetmp=new JSONArray();
 
@@ -125,7 +125,7 @@ public class MainActivity extends Activity {
 				// custom dialog
 				final Dialog dialog = new Dialog(context);
 				dialog.setContentView(R.layout.create_note_dial);
-				dialog.setTitle("Title...");
+				dialog.setTitle("Ajouter une note");
 
 				// set the custom dialog components - text, image and button
 				final EditText textNote = (EditText) dialog.findViewById(R.id.note);
@@ -149,17 +149,16 @@ public class MainActivity extends Activity {
 						String titre = textTitre.getText().toString();
 
 
-						Toast.makeText(getApplicationContext(),
-								context.getFilesDir().toString(),
-								Toast.LENGTH_SHORT).show();
-
 						String note = textNote.getText().toString();
 
-
+						List<String> tmp = new ArrayList<String>();
+						tmp.add(note);
 
 						listDataHeader.add(titre);
-						listDataChild.put(listDataHeader.get(listDataHeader.size()-1),note);
+						listDataChild.put(listDataHeader.get(listDataHeader.size()-1),tmp);
 
+
+						Log.e("listdatachild",listDataHeader.get(listDataHeader.size()-1));
 
 						JSONObject obj = new JSONObject();
 						try {
@@ -181,6 +180,7 @@ public class MainActivity extends Activity {
 						Log.e("file array",filetmp.toString());
 
 						dialog.dismiss();
+
 					}
 				});
 				dialog.show();
@@ -246,7 +246,7 @@ public class MainActivity extends Activity {
 
 	private void prepareListData() {
 		listDataHeader = new ArrayList<String>();
-		listDataChild = new HashMap<String, String>();
+		listDataChild = new HashMap<String,List<String>>();
 
 
 			try {
@@ -256,8 +256,12 @@ public class MainActivity extends Activity {
 					obj=filetmp.getJSONObject(i);
 					String titre = obj.get("titre").toString();
 					String note = obj.get("note").toString();
+
+					List<String> tmp = new ArrayList<String>();
+					tmp.add(note);
+
 					listDataHeader.add(titre);
-					listDataChild.put(listDataHeader.get(i),note );
+					listDataChild.put(listDataHeader.get(i),tmp );
 				}
 } catch (JSONException e) {
 			e.printStackTrace();
