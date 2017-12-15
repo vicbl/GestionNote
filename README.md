@@ -4,5 +4,14 @@ Application android pour créer des notes composées d'un titre et d'une descrip
 
 La sauvegarde des notes s'effectue dans un fichier au format JSON
 
+Aerçu de l'écran d'acceuil : 
 
-Branche Hugo
+![home](img/HomeEmpty.PNG)
+
+Aerçu de l'écran d'acceuil : 
+
+![homeFull](img/HomeNote.PNG)
+
+Boite de dialogue ajout note : 
+
+![addnote](img/AddNote.PNG)
