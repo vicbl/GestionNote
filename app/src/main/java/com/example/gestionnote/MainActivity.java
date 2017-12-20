@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
@@ -170,8 +171,18 @@ public class MainActivity extends AppCompatActivity {
 
         };
         final Handler handel = new Handler();
+        expListView.setLongClickable(true);
+        expListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+               @Override
+               public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                   Log.e("Child : ", i + "");
+                   return false;
+               }
+           }
 
-        expListView.setOnTouchListener(new View.OnTouchListener() {
+        );
+
+        /* expListView.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -179,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
                     case MotionEvent.ACTION_DOWN:
 
                         Toast.makeText(getApplicationContext(),
+                                //expListView.getFocusedChild().getId() + "",
                                 "",
                                 Toast.LENGTH_SHORT).show();
                         handel.postDelayed(run, 500);
@@ -193,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return false;
             }
-        });
+        });*/
 
 
         FloatingActionButton createDelete = (FloatingActionButton) findViewById(R.id.deleteNote);
