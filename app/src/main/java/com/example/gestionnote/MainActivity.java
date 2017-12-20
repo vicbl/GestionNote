@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
                 switch(event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         handel.postDelayed(run, 500);
-                        System.out.println(" pressed ");
+
 
                         break;
                     case MotionEvent.ACTION_UP:
