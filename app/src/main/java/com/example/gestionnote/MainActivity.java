@@ -1,5 +1,6 @@
 package com.example.gestionnote;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ExpandableListView.OnGroupCollapseListener;
 import android.widget.ExpandableListView.OnGroupExpandListener;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
     final Context context = this;
 
+    int idTitre;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
                 // Toast.makeText(getApplicationContext(),
                 // "Group Clicked " + listDataHeader.get(groupPosition),
                 // Toast.LENGTH_SHORT).show();
+
+
+                idTitre=groupPosition;
                 return false;
             }
         });
@@ -80,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onGroupExpand(int groupPosition) {
+                idTitre=groupPosition;
                 Toast.makeText(getApplicationContext(),
                         listDataHeader.get(groupPosition) + " Expanded",
                         Toast.LENGTH_SHORT).show();
@@ -105,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onChildClick(ExpandableListView parent, View v,
                                         int groupPosition, int childPosition, long id) {
                 // TODO Auto-generated method stub
+
                 Toast.makeText(
                         getApplicationContext(),
                         listDataHeader.get(groupPosition)
@@ -113,26 +121,67 @@ public class MainActivity extends AppCompatActivity {
                                 listDataHeader.get(groupPosition)), Toast.LENGTH_SHORT)
                         .show();
                 return false;
+
             }
         });
         final Runnable run = new Runnable() {
 
             @Override
             public void run() {
-                // Your code to run on long click
-                Toast.makeText(getApplicationContext(),
-                        "5000",
-                        Toast.LENGTH_SHORT).show();
-            }
+
+                        Toast.makeText(getApplicationContext(),
+                                "pressed",
+                                Toast.LENGTH_SHORT).show();
+                        // Your code to run on long click
+                        final Dialog dialogDelete = new Dialog(context);
+                        dialogDelete.setContentView(R.layout.delete_note_dial);
+                        dialogDelete.setTitle("Supprimer");
+
+                        // set the custom dialog components - text, image and button
+                        final TextView textTitre = (TextView) dialogDelete.findViewById(R.id.textDelete);
+
+                         String titre =  listDataHeader.get(idTitre);
+                        String textToDisplay = "Voulez vous supprimer ";
+                        textToDisplay = textToDisplay+titre;
+                        textTitre.setText(textToDisplay);
+
+                        Button dialogButtonOK = (Button) dialogDelete.findViewById(R.id.dialogButtonOK);
+                        Button dialogButtonCancel = (Button) dialogDelete.findViewById(R.id.dialogButtonCancel);
+                        // if button is clicked, close the custom dialog
+                        dialogButtonCancel.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                dialogDelete.dismiss();
+                            }
+                        });
+
+
+                        dialogButtonOK.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                //TODO methode supprimer
+                                dialogDelete.dismiss();
+                            }
+                        });
+                        dialogDelete.show();
+                    }
+
+
+
         };
         final Handler handel = new Handler();
+
         expListView.setOnTouchListener(new View.OnTouchListener() {
+
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                switch(event.getAction()) {
+                switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
+
+                        Toast.makeText(getApplicationContext(),
+                                "",
+                                Toast.LENGTH_SHORT).show();
                         handel.postDelayed(run, 500);
-                        System.out.println(" pressed ");
 
                         break;
                     case MotionEvent.ACTION_UP:
@@ -316,3 +365,5 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
+
+
