@@ -37,12 +37,10 @@ public class MainActivity extends AppCompatActivity {
 
     ExpandableListAdapter listAdapter;
     ExpandableListView expListView;
-    List<String> listDataHeader;
-    HashMap<String, String> listDataChild;
-
-    JSONArray filetmp = new JSONArray();
 
     final Context context = this;
+
+    private TodoList maListe = new TodoList();
 
 
     @Override
@@ -51,13 +49,30 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         this.setTitle("Gestion de Notes");
 
+        try {
+            FileOutputStream fos = openFileOutput("test.txt", Context.MODE_PRIVATE);
+            maListe.setFos(fos);
+        } catch (IOException e) {
+            Log.e("Exception", "File write failed: " + e.toString());
+        }
+
+        try {
+            InputStream inputStream = context.openFileInput("test.txt");
+            maListe.setInputStream(inputStream);
+            Log.e("Setting input stream", "ok");
+        } catch (IOException e) {
+            Log.e("Setting input stream", "ko");
+            Log.e("Exception", "File write failed: " + e.toString());
+        }
+
         // get the listview
         expListView = (ExpandableListView) findViewById(R.id.lvExp);
 
         // preparing list data
-        prepareListData();
 
-        listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
+        maListe.prepareListData();
+
+        listAdapter = new ExpandableListAdapter(this, maListe.get_listDataHeader(), maListe.get_listDataChild());
 
         // setting list adapter
         expListView.setAdapter(listAdapter);
@@ -81,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onGroupExpand(int groupPosition) {
                 Toast.makeText(getApplicationContext(),
-                        listDataHeader.get(groupPosition) + " Expanded",
+                        maListe.get_listDataHeader().get(groupPosition) + " Expanded",
                         Toast.LENGTH_SHORT).show();
             }
         });
@@ -92,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onGroupCollapse(int groupPosition) {
                 Toast.makeText(getApplicationContext(),
-                        listDataHeader.get(groupPosition) + " Collapsed",
+                        maListe.get_listDataHeader().get(groupPosition) + " Collapsed",
                         Toast.LENGTH_SHORT).show();
 
             }
@@ -107,10 +122,10 @@ public class MainActivity extends AppCompatActivity {
                 // TODO Auto-generated method stub
                 Toast.makeText(
                         getApplicationContext(),
-                        listDataHeader.get(groupPosition)
+                        maListe.get_listDataHeader().get(groupPosition)
                                 + " : "
-                                + listDataChild.get(
-                                listDataHeader.get(groupPosition)), Toast.LENGTH_SHORT)
+                                + maListe.get_listDataChild().get(
+                                maListe.get_listDataHeader().get(groupPosition)), Toast.LENGTH_SHORT)
                         .show();
                 return false;
             }
@@ -140,24 +155,19 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(),
                                 "released",
                                 Toast.LENGTH_SHORT).show();
+
                         break;
                 }
                 return false;
             }
         });
 
-
+        // Bouton supprimer all
         FloatingActionButton createDelete = (FloatingActionButton) findViewById(R.id.deleteNote);
         createDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                writeToFile("");
-                listDataChild.clear();
-                listDataHeader.clear();
-
-
-                filetmp = new JSONArray(new ArrayList<String>());
-
+                maListe.deleteAll();
 
                 expListView.setVisibility(View.GONE);
                 expListView.setVisibility(View.VISIBLE);
@@ -169,6 +179,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        // Bouton Add
         FloatingActionButton createAdd = (FloatingActionButton) findViewById(R.id.addNote);
         createAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -207,37 +219,8 @@ public class MainActivity extends AppCompatActivity {
 								Toast.LENGTH_SHORT).show();*/
 
                         String note = textNote.getText().toString();
-
-                        Log.e("Titre : ", titre);
-                        Log.e("DataHeader : ", listDataHeader.toString());
-                        if (!listDataHeader.contains(titre)) {
-                            listDataHeader.add(titre);
-                            listDataChild.put(listDataHeader.get(listDataHeader.size() - 1), note);
-
-
-                            JSONObject obj = new JSONObject();
-                            try {
-                                obj.put("titre", titre);
-                                obj.put("note", note);
-
-
-                                filetmp.put(obj);
-
-
-                                writeToFile(filetmp.toString());
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                            Log.e("JSON content", obj.toString());
-                            Log.e("file array", filetmp.toString());
-                            dialog.dismiss();
-                        } else {
-                            Toast.makeText(getApplicationContext(),
-                                    "Titre deja cree",
-                                    Toast.LENGTH_SHORT).show();
-                            //  Log.e("Titre deja cree", titre);
-                        }
+                        maListe.add(titre, note);
+                        dialog.dismiss();
 
 
                     }
@@ -251,68 +234,4 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
-    private void writeToFile(String data) {
-
-        try {
-            FileOutputStream fos = openFileOutput("test.txt", Context.MODE_PRIVATE);
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fos);
-            outputStreamWriter.write(data);
-            outputStreamWriter.close();
-
-
-        } catch (IOException e) {
-            Log.e("Exception", "File write failed: " + e.toString());
-        }
-    }
-
-
-    private String readFromFile() {
-
-        String ret = "";
-
-        try {
-            InputStream inputStream = context.openFileInput("test.txt");
-
-            if (inputStream != null) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                String receiveString = "";
-                StringBuilder stringBuilder = new StringBuilder();
-
-                while ((receiveString = bufferedReader.readLine()) != null) {
-                    stringBuilder.append(receiveString);
-                }
-
-                inputStream.close();
-                ret = stringBuilder.toString();
-            }
-        } catch (FileNotFoundException e) {
-            Log.e("login activity", "File not found: " + e.toString());
-        } catch (IOException e) {
-            Log.e("login activity", "Can not read file: " + e.toString());
-        }
-
-        return ret;
-    }
-
-    private void prepareListData() {
-        listDataHeader = new ArrayList<String>();
-        listDataChild = new HashMap<String, String>();
-
-
-        try {
-            filetmp = new JSONArray(readFromFile());
-            JSONObject obj = new JSONObject();
-            for (int i = 0; i < filetmp.length(); i++) {
-                obj = filetmp.getJSONObject(i);
-                String titre = obj.get("titre").toString();
-                String note = obj.get("note").toString();
-                listDataHeader.add(titre);
-                listDataChild.put(listDataHeader.get(i), note);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
 }
