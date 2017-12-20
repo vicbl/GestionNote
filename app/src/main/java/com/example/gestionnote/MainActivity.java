@@ -3,9 +3,11 @@ package com.example.gestionnote;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -113,6 +115,37 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+        final Runnable run = new Runnable() {
+
+            @Override
+            public void run() {
+                // Your code to run on long click
+                Toast.makeText(getApplicationContext(),
+                        "5000",
+                        Toast.LENGTH_SHORT).show();
+            }
+        };
+        final Handler handel = new Handler();
+        expListView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        handel.postDelayed(run, 500);
+                        System.out.println(" pressed ");
+
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        handel.removeCallbacks(run);
+                        Toast.makeText(getApplicationContext(),
+                                "released",
+                                Toast.LENGTH_SHORT).show();
+                        break;
+                }
+                return false;
+            }
+        });
+
 
         FloatingActionButton createDelete = (FloatingActionButton) findViewById(R.id.deleteNote);
         createDelete.setOnClickListener(new View.OnClickListener() {
