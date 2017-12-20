@@ -10,7 +10,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,18 +19,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
 /**
  * Created by Hugo on 20/12/2017.
  */
 
-public class TodoList {
+public class TodoList{
     private List<String> _listDataHeader;
     private HashMap<String, String> _listDataChild;
     private FileOutputStream fos;
     private InputStream inputStream;
     private JSONArray filetmp;
+    public static  Context contextTodoList = MainActivity.class.getApplicationContext();
 
+public TodoList(){
+    prepareListData();
+}
+public FileOutputStream getFos(){
+    return this.fos;
+}
 
     public void setFos(FileOutputStream fos) {
         this.fos = fos;
@@ -66,7 +72,7 @@ public class TodoList {
                 obj.put("titre", titre);
                 obj.put("note", note);
 
-
+                filetmp = new JSONArray(readFromFile());
                 filetmp.put(obj);
 
 
@@ -76,15 +82,17 @@ public class TodoList {
             }
 
             Log.e("JSON content", obj.toString());
-            Log.e("file array", filetmp.toString());
+           // Log.e("file array", filetmp.toString());
+            Log.e("read file", readFromFile());
         } else {
             Log.e("Titre deja cree", titre);
         }
     }
 
     private void writeToFile(String data) {
-
+        Log.e("Write file", data);
         try {
+            FileOutputStream fos =  MainActivity.contextTodoList.openFileOutput("test.txt", Context.MODE_PRIVATE);
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fos);
             outputStreamWriter.write(data);
             outputStreamWriter.close();
@@ -98,7 +106,9 @@ public class TodoList {
         String ret = "";
 
         try {
+            InputStream inputStream = MainActivity.contextTodoList.openFileInput("test.txt");
             if (inputStream != null) {
+
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                 String receiveString = "";
@@ -108,8 +118,9 @@ public class TodoList {
                     stringBuilder.append(receiveString);
                 }
 
-                inputStream.close();
+
                 ret = stringBuilder.toString();
+                inputStream.close();
             }
         } catch (FileNotFoundException e) {
             Log.e("login activity", "File not found: " + e.toString());

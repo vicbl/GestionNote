@@ -38,8 +38,8 @@ public class MainActivity extends AppCompatActivity {
     ExpandableListAdapter listAdapter;
     ExpandableListView expListView;
 
-    final Context context = this;
-
+ final Context context = this;
+    
     private TodoList maListe = new TodoList();
 
 
@@ -65,12 +65,10 @@ public class MainActivity extends AppCompatActivity {
             Log.e("Exception", "File write failed: " + e.toString());
         }
 
-        // get the listview
+                // get the listview
         expListView = (ExpandableListView) findViewById(R.id.lvExp);
 
-        // preparing list data
 
-        maListe.prepareListData();
 
         listAdapter = new ExpandableListAdapter(this, maListe.get_listDataHeader(), maListe.get_listDataChild());
 
