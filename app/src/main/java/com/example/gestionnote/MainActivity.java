@@ -47,7 +47,16 @@ public class MainActivity extends AppCompatActivity {
 
     final Context context = this;
 
-    int idTitre;
+
+    public String getObjectToDelete() {
+        return objectToDelete;
+    }
+
+    public void setObjectToDelete(String objectToDelete) {
+        this.objectToDelete = objectToDelete;
+    }
+
+    private String objectToDelete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,36 +75,40 @@ public class MainActivity extends AppCompatActivity {
         // setting list adapter
         expListView.setAdapter(listAdapter);
 
+
         // Listview Group click listener
+       /* Affiche le titre de la note lors du clique
         expListView.setOnGroupClickListener(new OnGroupClickListener() {
 
             @Override
             public boolean onGroupClick(ExpandableListView parent, View v,
                                         int groupPosition, long id) {
-                // Toast.makeText(getApplicationContext(),
-                // "Group Clicked " + listDataHeader.get(groupPosition),
-                // Toast.LENGTH_SHORT).show();
+               Toast.makeText(getApplicationContext(),
+                 "Group Clicked " + listDataHeader.get(groupPosition),
+                Toast.LENGTH_SHORT).show();
 
 
-                idTitre=groupPosition;
                 return false;
             }
         });
+        */
 
         // Listview Group expanded listener
+        /* Affiche le titre de la note lors du clique
         expListView.setOnGroupExpandListener(new OnGroupExpandListener() {
 
             @Override
             public void onGroupExpand(int groupPosition) {
-                idTitre=groupPosition;
+
                 Toast.makeText(getApplicationContext(),
                         listDataHeader.get(groupPosition) + " Expanded",
                         Toast.LENGTH_SHORT).show();
             }
         });
+        */
 
         // Listview Group collasped listener
-        expListView.setOnGroupCollapseListener(new OnGroupCollapseListener() {
+       /* expListView.setOnGroupCollapseListener(new OnGroupCollapseListener() {
 
             @Override
             public void onGroupCollapse(int groupPosition) {
@@ -104,10 +117,10 @@ public class MainActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
 
             }
-        });
+        });*/
 
         // Listview on child click listener
-        expListView.setOnChildClickListener(new OnChildClickListener() {
+        /*expListView.setOnChildClickListener(new OnChildClickListener() {
 
             @Override
             public boolean onChildClick(ExpandableListView parent, View v,
@@ -124,112 +137,111 @@ public class MainActivity extends AppCompatActivity {
                 return false;
 
             }
-        });
+        });*/
+
+        /**
+         * Le runnable permet d'afficher la boite de dialog de suppression
+         * Il s'affiche après un clique long sur le titre de la note
+         */
         final Runnable run = new Runnable() {
 
             @Override
             public void run() {
 
+
+                // Your code to run on long click
+                final Dialog dialogDelete = new Dialog(context);
+                dialogDelete.setContentView(R.layout.delete_note_dial);
+                dialogDelete.setTitle("Supprimer");
+
+                // set the custom dialog components - text, image and button
+                final TextView textTitre = (TextView) dialogDelete.findViewById(R.id.textDelete);
+
+
+                String textToDisplay = "Voulez vous supprimer ";
+                textToDisplay = textToDisplay + getObjectToDelete();
+                textTitre.setText(textToDisplay);
+
+                Button dialogButtonOK = (Button) dialogDelete.findViewById(R.id.dialogButtonOK);
+                Button dialogButtonCancel = (Button) dialogDelete.findViewById(R.id.dialogButtonCancel);
+                // if button is clicked, close the custom dialog
+                dialogButtonCancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialogDelete.dismiss();
+                    }
+                });
+
+
+                dialogButtonOK.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        deleteObjectFromFile(getObjectToDelete());
+                        Log.e("Click delete", listDataHeader.toString());
+                        refreshView();
+                        dialogDelete.dismiss();
                         Toast.makeText(getApplicationContext(),
-                                "pressed",
+                                getObjectToDelete()+" Supprimé avec succès",
                                 Toast.LENGTH_SHORT).show();
-                        // Your code to run on long click
-                        final Dialog dialogDelete = new Dialog(context);
-                        dialogDelete.setContentView(R.layout.delete_note_dial);
-                        dialogDelete.setTitle("Supprimer");
 
-                        // set the custom dialog components - text, image and button
-                        final TextView textTitre = (TextView) dialogDelete.findViewById(R.id.textDelete);
-
-                         String titre =  listDataHeader.get(idTitre);
-                        String textToDisplay = "Voulez vous supprimer ";
-                        textToDisplay = textToDisplay+titre;
-                        textTitre.setText(textToDisplay);
-
-                        Button dialogButtonOK = (Button) dialogDelete.findViewById(R.id.dialogButtonOK);
-                        Button dialogButtonCancel = (Button) dialogDelete.findViewById(R.id.dialogButtonCancel);
-                        // if button is clicked, close the custom dialog
-                        dialogButtonCancel.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                dialogDelete.dismiss();
-                            }
-                        });
-
-
-                        dialogButtonOK.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                //TODO methode supprimer
-                                dialogDelete.dismiss();
-                            }
-                        });
-                        dialogDelete.show();
                     }
 
+                });
+
+                dialogDelete.show();
+            }
 
 
         };
+
+
+        // handel permet de lancer le thread run après un délai de 500 ms
         final Handler handel = new Handler();
+
         expListView.setLongClickable(true);
         expListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-               @Override
-               public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                   Log.e("Child : ", i + "");
-                   return false;
-               }
-           }
+                                                   @Override
+                                                   public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    //On récupère le titre de la note que l'on souhaite supprimer
+                                                       TextView txtListChild = (TextView) view
+                                                               .findViewById(R.id.lblListHeader);
+
+
+                                                         // Log.e("Child : ", " i = "+i+" flat position"+((ExpandableListView)adapterView).getFlatListPosition(l)+" child "+txtListChild.getText());
+                                                       setObjectToDelete(txtListChild.getText().toString());
+                                                       handel.postDelayed(run, 500);
+                                                       return false;
+                                                   }
+                                               }
 
         );
 
-        /* expListView.setOnTouchListener(new View.OnTouchListener() {
 
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-
-                        Toast.makeText(getApplicationContext(),
-                                //expListView.getFocusedChild().getId() + "",
-                                "",
-                                Toast.LENGTH_SHORT).show();
-                        handel.postDelayed(run, 500);
-
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        handel.removeCallbacks(run);
-                        Toast.makeText(getApplicationContext(),
-                                "released",
-                                Toast.LENGTH_SHORT).show();
-                        break;
-                }
-                return false;
-            }
-        });*/
-
-
-        FloatingActionButton createDelete = (FloatingActionButton) findViewById(R.id.deleteNote);
-        createDelete.setOnClickListener(new View.OnClickListener() {
+        /**
+         * Bouton permettant de supprimer toutes les notes
+         */
+        FloatingActionButton deleteAll = (FloatingActionButton) findViewById(R.id.deleteNote);
+        deleteAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 writeToFile("");
                 listDataChild.clear();
                 listDataHeader.clear();
 
-
                 filetmp = new JSONArray(new ArrayList<String>());
 
-
-                expListView.setVisibility(View.GONE);
-                expListView.setVisibility(View.VISIBLE);
+                refreshView();
 
 
                 Toast.makeText(getApplicationContext(),
-                        "Supprimer",
+                        "Vous avez supprimé toutes les notes",
                         Toast.LENGTH_SHORT).show();
             }
         });
 
+        /**
+         * Bouton permettant d'ajouter une note
+         */
         FloatingActionButton createAdd = (FloatingActionButton) findViewById(R.id.addNote);
         createAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -239,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
                 // custom dialog
                 final Dialog dialog = new Dialog(context);
                 dialog.setContentView(R.layout.create_note_dial);
-                dialog.setTitle("Title...");
+
 
                 // set the custom dialog components - text, image and button
                 final EditText textNote = (EditText) dialog.findViewById(R.id.note);
@@ -263,9 +275,6 @@ public class MainActivity extends AppCompatActivity {
                         String titre = textTitre.getText().toString();
 
 
-					/*	Toast.makeText(getApplicationContext(),
-                                context.getFilesDir().toString(),
-								Toast.LENGTH_SHORT).show();*/
 
                         String note = textNote.getText().toString();
 
@@ -293,11 +302,14 @@ public class MainActivity extends AppCompatActivity {
                             Log.e("JSON content", obj.toString());
                             Log.e("file array", filetmp.toString());
                             dialog.dismiss();
+                            Toast.makeText(getApplicationContext(),
+                                    titre+" créé avec succès",
+                                    Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(getApplicationContext(),
-                                    "Titre deja cree",
+                                    titre+" existe déjà",
                                     Toast.LENGTH_SHORT).show();
-                            //  Log.e("Titre deja cree", titre);
+                              Log.e("Titre deja cree", titre);
                         }
 
 
@@ -312,7 +324,52 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Méthode qui permet de rafraichir la page contenant toutes les notes
+     */
+    private void refreshView() {
+       expListView.setVisibility(View.GONE);
+       expListView.setVisibility(View.VISIBLE);
 
+    }
+
+    /**
+     * Permet de supprimer une seule note du fichier de sauvegarde
+     * @param toDelete est la string contenant le titre de la note à supprimer
+     */
+    private void deleteObjectFromFile(String toDelete) {
+
+        if (listDataHeader.contains(toDelete)) {
+
+            int posObjToDelete = listDataHeader.indexOf(toDelete);
+            expListView.collapseGroup(posObjToDelete);
+
+            // On supprime les notes des listes du layout
+            listDataHeader.remove(toDelete);
+            listDataChild.remove(toDelete);
+
+            // On supprime l'objet du fichier de sauvegarde
+            filetmp.remove(posObjToDelete);
+
+            writeToFile(filetmp.toString());
+
+
+            Log.e("obj supp pos = ", "" + posObjToDelete);
+            Log.e("file array", " after delete" + filetmp.toString());
+
+        } else {
+            Toast.makeText(getApplicationContext(),
+                    "Error ce titre n'existe pas",
+                    Toast.LENGTH_SHORT).show();
+             Log.e("Error"," Impossible de supprimer "+toDelete+" il n'existe pas");
+        }
+
+    }
+
+    /**
+     * Permet d'écrir dans le fichier de sauvegarde
+     * @param data String devant contenir un tableau JSON contenant toutes les notes
+     */
     private void writeToFile(String data) {
 
         try {
@@ -327,7 +384,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * Permet de recupérer tout le contenu du fichier de sauvegarde
+     * @return un String
+     */
     private String readFromFile() {
 
         String ret = "";
@@ -357,6 +417,9 @@ public class MainActivity extends AppCompatActivity {
         return ret;
     }
 
+    /**
+     * Permet de charger le contenu du fichier dans les listes d'affichage de titres et de notes
+     */
     private void prepareListData() {
         listDataHeader = new ArrayList<String>();
         listDataChild = new HashMap<String, String>();
