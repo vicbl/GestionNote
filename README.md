@@ -4,14 +4,26 @@ Application android pour créer des notes composées d'un titre et d'une descrip
 
 La sauvegarde des notes s'effectue dans un fichier au format JSON
 
-Aerçu de l'écran d'acceuil : 
+<h4> Aperçu de l'écran d'acceuil : <br>
 
-![home](img/HomeEmpty.PNG)
+<img alt="home" src="img/HomeEmpty.PNG" width="50%" height="50%">
 
-Aerçu de l'écran d'acceuil : 
+<h4> Aperçu de l'écran d'acceuil contenant des notes:<br>
 
-![homeFull](img/HomeNote.PNG)
+<img alt="homeFull" src="img/HomeNote.PNG" width="50%" height="50%">
 
-Boite de dialogue ajout note : 
+<h4> Boite de dialogue ajout note :<br>
 
-![addnote](img/AddNote.PNG)
+<img alt="addnote" src="img/AddNote.PNG" width="50%" height="50%">
+
+<h4> Notification ajout note :<br>
+
+<img alt="addnotesuccess" src="img/AddNoteSuccess.png" width="50%" height="50%">
+
+<h4> Boite de dialogue suppression note :<br>
+
+<img alt="suppnote" src="img/SuppNote.png" width="50%" height="50%">
+
+<h4> Notification après suppression de toutes les notes :<br>
+
+<img alt="suppallsuccess" src="img/SuppAllSucces.png" width="50%" height="50%">
