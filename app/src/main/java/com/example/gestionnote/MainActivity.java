@@ -285,7 +285,6 @@ public class MainActivity extends AppCompatActivity {
                             listDataHeader.add(titre);
                             listDataChild.put(listDataHeader.get(listDataHeader.size() - 1), note);
 
-
                             JSONObject obj = new JSONObject();
                             try {
                                 obj.put("titre", titre);
