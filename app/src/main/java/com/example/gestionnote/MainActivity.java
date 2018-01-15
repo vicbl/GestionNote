@@ -150,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                 // Your code to run on long click
+
                 final Dialog dialogDelete = new Dialog(context);
                 dialogDelete.setContentView(R.layout.delete_note_dial);
                 dialogDelete.setTitle("Supprimer");
@@ -283,7 +284,6 @@ public class MainActivity extends AppCompatActivity {
                         if (!listDataHeader.contains(titre)) {
                             listDataHeader.add(titre);
                             listDataChild.put(listDataHeader.get(listDataHeader.size() - 1), note);
-
 
                             JSONObject obj = new JSONObject();
                             try {
