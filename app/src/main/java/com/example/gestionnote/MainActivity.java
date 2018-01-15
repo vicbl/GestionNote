@@ -3,9 +3,11 @@ package com.example.gestionnote;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -148,48 +150,122 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
 
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+                builder1.setMessage("Que voulez vous faire ?");
+                builder1.setCancelable(true);
 
-                // Your code to run on long click
+                /**
+                 * Premier choix : on supprime la note
+                 * Une boite de dialog demande la confirmation
+                 */
+                builder1.setPositiveButton(
+                        "Supprimer la note",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                final Dialog dialogDelete = new Dialog(context);
+                                dialogDelete.setContentView(R.layout.delete_note_dial);
+                                dialogDelete.setTitle("Supprimer");
 
-                final Dialog dialogDelete = new Dialog(context);
-                dialogDelete.setContentView(R.layout.delete_note_dial);
-                dialogDelete.setTitle("Supprimer");
-
-                // set the custom dialog components - text, image and button
-                final TextView textTitre = (TextView) dialogDelete.findViewById(R.id.textDelete);
-
-
-                String textToDisplay = "Voulez vous supprimer ";
-                textToDisplay = textToDisplay + getObjectToDelete();
-                textTitre.setText(textToDisplay);
-
-                Button dialogButtonOK = (Button) dialogDelete.findViewById(R.id.dialogButtonOK);
-                Button dialogButtonCancel = (Button) dialogDelete.findViewById(R.id.dialogButtonCancel);
-                // if button is clicked, close the custom dialog
-                dialogButtonCancel.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dialogDelete.dismiss();
-                    }
-                });
+                                // set the custom dialog components - text, image and button
+                                final TextView textTitre = (TextView) dialogDelete.findViewById(R.id.textDelete);
 
 
-                dialogButtonOK.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        deleteObjectFromFile(getObjectToDelete());
-                        Log.e("Click delete", listDataHeader.toString());
-                        refreshView();
-                        dialogDelete.dismiss();
-                        Toast.makeText(getApplicationContext(),
-                                getObjectToDelete()+" Supprimé avec succès",
-                                Toast.LENGTH_SHORT).show();
+                                String textToDisplay = "Voulez vous supprimer ";
+                                textToDisplay = textToDisplay + getObjectToDelete();
+                                textTitre.setText(textToDisplay);
 
-                    }
+                                Button dialogButtonOK = (Button) dialogDelete.findViewById(R.id.dialogButtonOK);
+                                Button dialogButtonCancel = (Button) dialogDelete.findViewById(R.id.dialogButtonCancel);
+                                // if button is clicked, close the custom dialog
+                                dialogButtonCancel.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        dialogDelete.dismiss();
+                                    }
+                                });
 
-                });
 
-                dialogDelete.show();
+                                dialogButtonOK.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        deleteObjectFromFile(getObjectToDelete());
+                                        Log.e("Click delete", listDataHeader.toString());
+                                        refreshView();
+                                        dialogDelete.dismiss();
+                                        Toast.makeText(getApplicationContext(),
+                                                getObjectToDelete() + " Supprimé avec succès",
+                                                Toast.LENGTH_SHORT).show();
+
+                                    }
+
+                                });
+
+                                dialogDelete.show();
+                            }
+                        });
+
+                /**
+                 * Deuxième choix on modifie a note
+                 * Une boite dialog avec le champ du titre et de la description apparait pour modifier
+                 */
+                builder1.setNegativeButton(
+                        "Modifier la note",
+                        new DialogInterface.OnClickListener() {
+
+                            String titreNoteAModif = getObjectToDelete();
+
+                            String descriptionAModif = getdescriptionNote(titreNoteAModif);
+
+                            public void onClick(DialogInterface dialoga, int id) {
+                                // On affiche une boite dialog avec les infos de la note
+
+                                final Dialog dialog = new Dialog(context);
+                                dialog.setContentView(R.layout.create_note_dial);
+
+                                ((EditText) dialog.findViewById(R.id.titre)).setText(titreNoteAModif);
+                                ((EditText) dialog.findViewById(R.id.note)).setText(descriptionAModif);
+                                // set the custom dialog components - text, image and button
+                                final EditText textNote = (EditText) dialog.findViewById(R.id.note);
+                                final EditText textTitre = (EditText) dialog.findViewById(R.id.titre);
+
+
+                                Button dialogButtonOK = (Button) dialog.findViewById(R.id.dialogButtonOK);
+                                Button dialogButtonCancel = (Button) dialog.findViewById(R.id.dialogButtonCancel);
+                                // if button is clicked, close the custom dialog
+                                dialogButtonCancel.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        dialog.dismiss();
+                                    }
+                                });
+
+
+                                dialogButtonOK.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        String titre = textTitre.getText().toString();
+                                        String note = textNote.getText().toString();
+
+                                        //On retire la boite de dialogue si l'édition de la note s'est bien passé
+                                        if (updateObject(titreNoteAModif, titre, note)) {
+                                            dialog.dismiss();
+                                            refreshView();
+                                        }
+
+                                        Log.e("Titre : ", titre);
+                                        Log.e("DataHeader : ", listDataHeader.toString());
+
+
+                                    }
+                                });
+                                dialog.show();
+
+                            }
+                        });
+
+                AlertDialog alert11 = builder1.create();
+                alert11.show();
+
             }
 
 
@@ -203,12 +279,12 @@ public class MainActivity extends AppCompatActivity {
         expListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                                                    @Override
                                                    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    //On récupère le titre de la note que l'on souhaite supprimer
+                                                       //On récupère le titre de la note que l'on souhaite supprimer
                                                        TextView txtListChild = (TextView) view
                                                                .findViewById(R.id.lblListHeader);
 
 
-                                                         // Log.e("Child : ", " i = "+i+" flat position"+((ExpandableListView)adapterView).getFlatListPosition(l)+" child "+txtListChild.getText());
+                                                       // Log.e("Child : ", " i = "+i+" flat position"+((ExpandableListView)adapterView).getFlatListPosition(l)+" child "+txtListChild.getText());
                                                        setObjectToDelete(txtListChild.getText().toString());
                                                        handel.postDelayed(run, 500);
                                                        return false;
@@ -274,43 +350,15 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         String titre = textTitre.getText().toString();
-
-
-
                         String note = textNote.getText().toString();
+
+                        //On retire la boite de dialogue si la création de la note s'est bien passé
+                        if (createObject(titre, note)) {
+                            dialog.dismiss();
+                        }
 
                         Log.e("Titre : ", titre);
                         Log.e("DataHeader : ", listDataHeader.toString());
-                        if (!listDataHeader.contains(titre)) {
-                            listDataHeader.add(titre);
-                            listDataChild.put(listDataHeader.get(listDataHeader.size() - 1), note);
-
-                            JSONObject obj = new JSONObject();
-                            try {
-                                obj.put("titre", titre);
-                                obj.put("note", note);
-
-
-                                filetmp.put(obj);
-
-
-                                writeToFile(filetmp.toString());
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                            Log.e("JSON content", obj.toString());
-                            Log.e("file array", filetmp.toString());
-                            dialog.dismiss();
-                            Toast.makeText(getApplicationContext(),
-                                    titre+" créé avec succès",
-                                    Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(getApplicationContext(),
-                                    titre+" existe déjà",
-                                    Toast.LENGTH_SHORT).show();
-                              Log.e("Titre deja cree", titre);
-                        }
 
 
                     }
@@ -324,17 +372,132 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    /**
+     * Permet de récupérer la description de la note à partir de son titre
+     *
+     * @param titre
+     * @return
+     */
+    private String getdescriptionNote(String titre) {
+        int indexTitre = listDataHeader.indexOf(titre);
+        JSONObject tmp = new JSONObject();
+        String descriptionNote = null;
+        try {
+            tmp = (JSONObject) filetmp.get(indexTitre);
+            descriptionNote = tmp.get("note").toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.e("descriptionNote", " = " + descriptionNote + " index = " + indexTitre);
+        return descriptionNote;
+    }
+
     /**
      * Méthode qui permet de rafraichir la page contenant toutes les notes
      */
     private void refreshView() {
-       expListView.setVisibility(View.GONE);
-       expListView.setVisibility(View.VISIBLE);
+        int i = 0;
+        while (i < expListView.getLastVisiblePosition()) {
+            expListView.collapseGroup(i);
+            i++;
+        }
+        expListView.setVisibility(View.GONE);
+        expListView.refreshDrawableState();
+        expListView.setVisibility(View.VISIBLE);
+
+    }
+
+    /**
+     * Permet d'ajouter une note dans le fichier JSON et ajouter la note aux listes
+     *
+     * @param titre, titre de la note
+     * @param note,  descritpion de la note
+     * @return true quand la création c'est bien passé ou false quand ce n'est pas le cas
+     */
+    private boolean createObject(String titre, String note) {
+        if (!listDataHeader.contains(titre)) {
+            listDataHeader.add(titre);
+            listDataChild.put(listDataHeader.get(listDataHeader.size() - 1), note);
+
+            JSONObject obj = new JSONObject();
+            try {
+                obj.put("titre", titre);
+                obj.put("note", note);
+
+
+                filetmp.put(obj);
+
+
+                writeToFile(filetmp.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            Log.e("JSON content", obj.toString());
+            Log.e("file array", filetmp.toString());
+
+            Toast.makeText(getApplicationContext(),
+                    titre + " créé avec succès",
+                    Toast.LENGTH_SHORT).show();
+            return true;
+        } else {
+            Toast.makeText(getApplicationContext(),
+                    titre + " existe déjà",
+                    Toast.LENGTH_SHORT).show();
+            Log.e("Titre deja cree", titre);
+            return false;
+        }
+    }
+
+    /**
+     * Permet de modifier une note
+     *
+     * @param oldTitre Va permettre de récupérer la position de la note dans le fichier et dans les list
+     * @param titre    nouveau titre
+     * @param note     nouvelle description
+     * @return
+     */
+    private boolean updateObject(String oldTitre, String titre, String note) {
+
+
+        //On recupère l'index de l'ancienne note pour ajouter la nouvelle au même endroit
+        int indexOldNote = listDataHeader.indexOf(oldTitre);
+        expListView.collapseGroup(indexOldNote);
+        Log.e("file array", " avant edition " + filetmp.toString());
+        Log.e("listDataHeader", " avant edition " + listDataHeader.toString());
+        JSONObject obj = new JSONObject();
+        try {
+            obj = (JSONObject) filetmp.get(indexOldNote);
+            obj.put("titre", titre);
+            obj.put("note", note);
+
+            filetmp.put(indexOldNote, obj);
+            writeToFile(filetmp.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        listDataHeader.remove(indexOldNote);
+        listDataHeader.add(indexOldNote, titre);
+        listDataChild.put(listDataHeader.get(indexOldNote), note);
+
+
+        Log.e("JSON content", obj.toString());
+        Log.e("file array", " apres edition " + filetmp.toString());
+        Log.e("listDataHeader", " apres edition " + listDataHeader.toString());
+        Toast.makeText(getApplicationContext(),
+                titre + " éditée avec succès",
+                Toast.LENGTH_SHORT).show();
+        return true;
 
     }
 
     /**
      * Permet de supprimer une seule note du fichier de sauvegarde
+     *
      * @param toDelete est la string contenant le titre de la note à supprimer
      */
     private void deleteObjectFromFile(String toDelete) {
@@ -361,13 +524,14 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),
                     "Error ce titre n'existe pas",
                     Toast.LENGTH_SHORT).show();
-             Log.e("Error"," Impossible de supprimer "+toDelete+" il n'existe pas");
+            Log.e("Error", " Impossible de supprimer " + toDelete + " il n'existe pas");
         }
 
     }
 
     /**
      * Permet d'écrir dans le fichier de sauvegarde
+     *
      * @param data String devant contenir un tableau JSON contenant toutes les notes
      */
     private void writeToFile(String data) {
@@ -386,6 +550,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Permet de recupérer tout le contenu du fichier de sauvegarde
+     *
      * @return un String
      */
     private String readFromFile() {
