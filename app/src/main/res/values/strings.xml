@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">GestionNote</string>
+    <string name="helpText">
+        <b>Page d\'aide</b>
+\n \n
+        Ajouter une note en cliquant sur le bouton
+\n \n
+        Supprimer toutes les notes en cliquant sur le bouton
+\n \n
+        Appui long sur une note pour la modifier ou la supprimer
+
+
+    </string>
 </resources>

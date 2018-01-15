@@ -12,6 +12,10 @@ La sauvegarde des notes s'effectue dans un fichier au format JSON
 
 <img alt="homeFull" src="img/HomeNote.PNG" width="50%" height="50%">
 
+<h4> Page d'aide :<br>
+
+<img alt="helpPage" src="img/HelpPage.png" width="50%" height="50%">
+
 <h4> Boite de dialogue ajout note :<br>
 
 <img alt="addnote" src="img/AddNote.PNG" width="50%" height="50%">

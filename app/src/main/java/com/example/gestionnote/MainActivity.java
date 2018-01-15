@@ -4,12 +4,21 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -48,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     JSONArray filetmp = new JSONArray();
 
     final Context context = this;
+    private View helpView;
 
 
     public String getObjectToDelete() {
@@ -66,8 +76,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         this.setTitle("Gestion de Notes");
 
+
         // get the listview
         expListView = (ExpandableListView) findViewById(R.id.lvExp);
+
+      /*  */
 
         // preparing list data
         prepareListData();
@@ -77,69 +90,6 @@ public class MainActivity extends AppCompatActivity {
         // setting list adapter
         expListView.setAdapter(listAdapter);
 
-
-        // Listview Group click listener
-       /* Affiche le titre de la note lors du clique
-        expListView.setOnGroupClickListener(new OnGroupClickListener() {
-
-            @Override
-            public boolean onGroupClick(ExpandableListView parent, View v,
-                                        int groupPosition, long id) {
-               Toast.makeText(getApplicationContext(),
-                 "Group Clicked " + listDataHeader.get(groupPosition),
-                Toast.LENGTH_SHORT).show();
-
-
-                return false;
-            }
-        });
-        */
-
-        // Listview Group expanded listener
-        /* Affiche le titre de la note lors du clique
-        expListView.setOnGroupExpandListener(new OnGroupExpandListener() {
-
-            @Override
-            public void onGroupExpand(int groupPosition) {
-
-                Toast.makeText(getApplicationContext(),
-                        listDataHeader.get(groupPosition) + " Expanded",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
-        */
-
-        // Listview Group collasped listener
-       /* expListView.setOnGroupCollapseListener(new OnGroupCollapseListener() {
-
-            @Override
-            public void onGroupCollapse(int groupPosition) {
-                Toast.makeText(getApplicationContext(),
-                        listDataHeader.get(groupPosition) + " Collapsed",
-                        Toast.LENGTH_SHORT).show();
-
-            }
-        });*/
-
-        // Listview on child click listener
-        /*expListView.setOnChildClickListener(new OnChildClickListener() {
-
-            @Override
-            public boolean onChildClick(ExpandableListView parent, View v,
-                                        int groupPosition, int childPosition, long id) {
-                // TODO Auto-generated method stub
-
-                Toast.makeText(
-                        getApplicationContext(),
-                        listDataHeader.get(groupPosition)
-                                + " : "
-                                + listDataChild.get(
-                                listDataHeader.get(groupPosition)), Toast.LENGTH_SHORT)
-                        .show();
-                return false;
-
-            }
-        });*/
 
         /**
          * Le runnable permet d'afficher la boite de dialog de suppression
@@ -407,6 +357,24 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Affiche la page d'aide lorsque l'on clique sur le bouton "?"
+     *
+     * @param mi
+     */
+    public void onComposeAction(MenuItem mi) {
+        Intent myIntent = new Intent(expListView.getContext(), HelpActivity.class);
+        startActivityForResult(myIntent, 0);
+    }
+
+    // Menu icons are inflated just as they were with actionbar
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        return true;
+    }
 
     /**
      * Permet de récupérer la description de la note à partir de son titre
