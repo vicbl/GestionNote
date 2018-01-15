@@ -301,18 +301,53 @@ public class MainActivity extends AppCompatActivity {
         deleteAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                writeToFile("");
-                listDataChild.clear();
-                listDataHeader.clear();
-
-                filetmp = new JSONArray(new ArrayList<String>());
-
-                refreshView();
 
 
-                Toast.makeText(getApplicationContext(),
-                        "Vous avez supprimé toutes les notes",
-                        Toast.LENGTH_SHORT).show();
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+                builder1.setMessage("Confirmer la supression de toutes les notes");
+                builder1.setCancelable(true);
+
+                /**
+                 * Premier choix : on supprime tout
+                 */
+                builder1.setPositiveButton(
+                        "OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                writeToFile("");
+                                listDataChild.clear();
+                                listDataHeader.clear();
+
+                                filetmp = new JSONArray(new ArrayList<String>());
+
+                                refreshView();
+
+
+                                Toast.makeText(getApplicationContext(),
+                                        "Vous avez supprimé toutes les notes",
+                                        Toast.LENGTH_SHORT).show();
+
+                                dialog.cancel();
+                            }
+
+                        });
+
+                /**
+                 * Deuxième choix on annule
+                 */
+                builder1.setNegativeButton(
+                        "Annuler",
+                        new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+
+                            }
+                        });
+
+                AlertDialog alert11 = builder1.create();
+                alert11.show();
+
             }
         });
 
